@@ -9,10 +9,10 @@
 // RAM note: the Uno has only 2 KB of SRAM. A full 512-LED buffer (1536 bytes)
 // leaves too little headroom and the compiler warns of instability, so instead
 // we keep ONE 256-LED buffer and flush it twice per frame — once per panel.
-#define LEDS_PER_PANEL 256  // 8 x 32 per BTF-LIGHTING panel
+#define LEDS_PER_PANEL 256                // 8 x 32 per BTF-LIGHTING panel
 #define CANVAS_LEDS (LEDS_PER_PANEL * 2)  // 512 virtual pixels across both panels
-#define LEFT_PANEL_PIN 7    // Data pin feeding the LEFT panel
-#define RIGHT_PANEL_PIN 6   // Data pin feeding the RIGHT panel
+#define LEFT_PANEL_PIN 7                  // Data pin feeding the LEFT panel
+#define RIGHT_PANEL_PIN 6                 // Data pin feeding the RIGHT panel
 #define SERIAL_RATE 115200
 
 // If the panels come up swapped (left content on the right panel), uncomment:
