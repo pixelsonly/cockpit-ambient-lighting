@@ -1,0 +1,33 @@
+name: Lint
+
+# Style check only — runs clang-format against the firmware sources.
+# Informational: it is NOT a required check, so it won't block merging
+# (handy when importing existing, not-yet-formatted code).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  clang-format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check formatting
+        uses: jidicula/clang-format-action@v4.13.0
+        with:
+          clang-format-version: "18"
+          # Include .ino alongside the usual C/C++ extensions.
+          include-regex: '^.*\.(c|h|cpp|hpp|cc|hh|cxx|hxx|ino)$'

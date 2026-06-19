@@ -1,0 +1,40 @@
+name: Compile
+
+# Compile-checks the sketch against the Arduino Uno R3 on every push/PR.
+# This is the required status check for merging into main.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref (e.g. rapid PR pushes).
+concurrency:
+  group: compile-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  compile:
+    name: Compile (Arduino Uno R3)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: "arduino:avr:uno"
+          # Keep in sync with sketch.yaml.
+          libraries: |
+            - name: FastLED
+          sketch-paths: |
+            - ./
+          enable-warnings-report: true
+          # Track flash/RAM usage over time — important on the Uno's tiny budget.
+          enable-deltas-report: true
+          verbose: false

@@ -1,69 +1,46 @@
-# Prerequisites
+# --- Arduino / arduino-cli build output ---
+# Compiled firmware and intermediate build artifacts
+build/
+*.hex
+*.elf
+*.bin
+*.eep
+*.lst
+*.map
+*.a
+*.o
 *.d
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.so.*
-
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Build directories
-build/
-Build/
-build-*/
-
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-install_manifest.txt
-compile_commands.json
-
-# Temporary files
-*.tmp
-*.log
-*.bak
-*.swp
-
-# vcpkg
-vcpkg_installed/
-
-# debug information files
-*.dwo
-
-# test output & cache
-Testing/
+# arduino-cli cache / profile output
+.arduino/
 .cache/
+
+# Arduino IDE 1.x sketch build folder (if compiled in-place)
+/applet/
+
+# --- Editor / IDE ---
+.vscode/
+.theia/
+*.code-workspace
+.idea/
+*.swp
+*.swo
+*~
+
+# Arduino IDE 2.x local settings (keep the shared sketch.yaml, ignore per-user state)
+.arduinoIDE/
+
+# --- OS noise ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# --- Logs / temp ---
+*.log
+*.tmp
+*.bak

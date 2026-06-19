@@ -1,0 +1,34 @@
+name: Release
+
+# On a version tag (e.g. v1.0.0): build the firmware with the pinned profile
+# from sketch.yaml and attach the compiled .hex to a GitHub Release.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write  # needed to create the release
+
+jobs:
+  build-and-release:
+    name: Build & publish firmware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Build firmware (profile: uno)
+        # --profile resolves the exact board + library versions from sketch.yaml.
+        run: arduino-cli compile --profile uno --output-dir build .
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/*.hex
+          generate_release_notes: true

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: SimHub setup help
+    url: https://github.com/pixelsonly/cockpit-ambient-lighting/blob/main/docs/SIMHUB_SETUP.md
+    about: Wiring SimHub to the Arduino — check this first.
+  - name: Hardware & wiring guide
+    url: https://github.com/pixelsonly/cockpit-ambient-lighting/blob/main/docs/HARDWARE.md
+    about: Power, wiring, and bill of materials.
+  - name: Pixelsonly Racing
+    url: https://pixelsonly.racing
+    about: Project home.
