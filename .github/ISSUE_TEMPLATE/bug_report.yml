@@ -1,0 +1,58 @@
+name: Bug report
+description: Something isn't working with the firmware or lighting
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a report! Please fill in as much as you can.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Flash firmware version ...
+        2. Start <game> in SimHub ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: firmware-version
+    attributes:
+      label: Firmware version / commit
+      placeholder: v1.0.0 or git SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: board
+    attributes:
+      label: Board
+      options:
+        - Arduino Uno R3
+        - Other (describe below)
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware setup
+      description: LED strip type & count, data pin, power supply, SimHub version.
+      placeholder: |
+        - Strip: WS2812B, 60 LEDs
+        - Data pin: D6
+        - PSU: 5V 5A
+        - SimHub: x.y.z
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Serial output / logs
+      description: Paste any relevant serial monitor or SimHub logs.
+      render: text

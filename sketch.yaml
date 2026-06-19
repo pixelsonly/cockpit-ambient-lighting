@@ -1,0 +1,17 @@
+# Arduino CLI / Arduino IDE 2.x build profile.
+# Pins the exact board platform and library versions so every build is reproducible.
+#
+#   arduino-cli compile --profile uno
+#   arduino-cli upload  --profile uno -p <PORT>
+#
+# Keep the library list in sync with .github/workflows/compile.yml.
+profiles:
+  uno:
+    notes: Arduino Uno R3 (ATmega328P)
+    fqbn: arduino:avr:uno
+    platforms:
+      - platform: arduino:avr (1.8.8)
+    libraries:
+      - FastLED (3.10.4)
+
+default_profile: uno
