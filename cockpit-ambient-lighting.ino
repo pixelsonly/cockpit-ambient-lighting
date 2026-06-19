@@ -15,8 +15,8 @@
 #include <FastLED.h>
 
 // ---- Strip configuration ----------------------------------------------------
-constexpr uint8_t kDataPin = 6;          // Digital pin wired to the strip's DIN
-constexpr uint16_t kNumLeds = 60;        // Number of LEDs on the strip
+constexpr uint8_t kDataPin = 6;             // Digital pin wired to the strip's DIN
+constexpr uint16_t kNumLeds = 60;           // Number of LEDs on the strip
 constexpr uint8_t kDefaultBrightness = 64;  // 0–255
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
