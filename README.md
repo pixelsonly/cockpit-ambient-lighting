@@ -18,37 +18,52 @@
 
 `cockpit-ambient-lighting` is the Arduino firmware behind a custom ambient
 lighting rig for a sim racing cockpit. [SimHub](https://www.simhubdash.com/)
-streams live game telemetry to an **Arduino Uno R3** over USB serial, and the
-firmware translates that into colour and animation on an addressable LED strip
-using [FastLED](https://fastled.io).
+(driven by the [Daniel Newman Racing](https://www.danielnewmanracing.com/)
+ambient LED profile) streams live game colours to an **Arduino Uno R3** over USB
+serial using the **Adalight** protocol, and the firmware paints them onto two
+WS2812B LED panels using [FastLED](https://fastled.io).
 
 ```
-┌──────────┐   telemetry   ┌─────────┐   USB serial   ┌──────────────┐   data   ┌────────────┐
-│   Game   │ ────────────▶ │ SimHub  │ ─────────────▶ │ Arduino Uno  │ ───────▶ │  LED strip │
-│ (sim)    │               │ (PC)    │   115200 baud  │ R3 + FastLED │  WS2812B │  (WS2812B) │
-└──────────┘               └─────────┘                └──────────────┘          └────────────┘
+┌──────────┐  telemetry  ┌─────────┐  USB serial  ┌──────────────┐  data  ┌──────────────┐
+│   Game   │ ──────────▶ │ SimHub  │ ───────────▶ │ Arduino Uno  │ ─────▶ │ LEFT  panel  │
+│ (sim)    │             │  + DNR  │  Adalight    │ R3 + FastLED │  D7    │ (WS2812B 8×32)│
+└──────────┘             │ profile │  115200 baud │              │ ─────▶ │ RIGHT panel  │
+                         └─────────┘              └──────────────┘  D6    │ (WS2812B 8×32)│
+                                                                          └──────────────┘
 ```
 
-> **Status:** repository scaffolding is in place. The sketch
-> (`cockpit-ambient-lighting.ino`) is currently a compilable placeholder —
-> drop the real firmware in to replace it.
+The two 8×32 panels are treated as one continuous left/right canvas: the first
+half of the SimHub colour stream drives the **left** panel and the second half
+drives the **right** panel.
 
 ## Features
 
-<!-- TODO: fill in once the firmware lands. Suggested bullets: -->
-- RPM / shift-light style strip animation
-- Flag and event colours (yellow, blue, white, etc.)
-- Configurable strip length, data pin, and brightness
-- Driven entirely by SimHub — no extra PC software required
+- **Adalight receiver** — speaks SimHub's standard Adalight serial protocol, so
+  all of the effect logic (RPM, flags, ambient colour, etc.) lives in SimHub /
+  the Daniel Newman Racing profile; no custom PC software required.
+- **Dual independent panels** — left and right WS2812B 8×32 panels are driven
+  from separate data pins (`D7`, `D6`) as one continuous canvas, not mirrored.
+- **Any zone count** — SimHub can stream anywhere from 2 colour zones (the DNR
+  2-zone ambient profile) up to per-pixel; each zone is spread evenly across the
+  512-pixel canvas, so finer SimHub layouts "just work" with no firmware change.
+- **RAM-safe on the Uno** — a single 256-LED buffer is flushed once per panel,
+  keeping well within the ATmega328P's 2 KB of SRAM.
+- **Power-on self-test** — a red/green/blue sweep at boot confirms both panels
+  are wired and addressed correctly.
 
 ## Hardware
 
 | Part | Notes |
 | --- | --- |
 | Arduino Uno R3 | ATmega328P, `arduino:avr:uno` |
-| Addressable LED strip | WS2812B / SK6812 (FastLED-compatible) |
-| 5V power supply | Sized for your LED count (~60 mA/LED at full white) |
+| 2× WS2812B 8×32 panel | BTF-LIGHTING 256-pixel matrices — 512 LEDs total |
+| 5V power supply | **Sized for 512 LEDs** — see [power budget](docs/HARDWARE.md#power-budget) |
 | USB cable | Arduino ↔ PC running SimHub |
+
+> ⚠️ 512 WS2812B LEDs can draw **~30 A at 5 V** at full white — far more than USB
+> or the Arduino's 5V pin can supply. Power the panels from a dedicated 5V PSU
+> and share only **ground** with the Arduino. Full numbers in
+> [docs/HARDWARE.md](docs/HARDWARE.md).
 
 Full wiring, power budgeting, and a recommended logic-level / capacitor setup
 are in **[docs/HARDWARE.md](docs/HARDWARE.md)**.
@@ -69,10 +84,17 @@ Use either the Arduino IDE 2.x or the Arduino CLI.
   arduino-cli upload  --profile uno -p /dev/ttyACM0   # adjust the port
   ```
 
-### 2. Configure your strip
+### 2. Configure your panels
 
-Edit the constants at the top of `cockpit-ambient-lighting.ino` (data pin, LED
-count, brightness, colour order) to match your wiring.
+Edit the constants at the top of `cockpit-ambient-lighting.ino` to match your
+wiring:
+
+| Constant | Default | Meaning |
+| --- | --- | --- |
+| `LEDS_PER_PANEL` | `256` | Pixels per panel (8 × 32) |
+| `LEFT_PANEL_PIN` | `7` | Data pin for the left panel |
+| `RIGHT_PANEL_PIN` | `6` | Data pin for the right panel |
+| `SWAP_PANELS` | _(off)_ | Uncomment if the panels come up left/right swapped |
 
 ### 3. Flash and wire up SimHub
 
@@ -83,7 +105,7 @@ walkthrough: **[docs/SIMHUB_SETUP.md](docs/SIMHUB_SETUP.md)**.
 
 ```
 .
-├── cockpit-ambient-lighting.ino   # Firmware (placeholder for now)
+├── cockpit-ambient-lighting.ino   # Firmware (dual-panel Adalight receiver)
 ├── sketch.yaml                    # Arduino CLI build profile (pinned versions)
 ├── .clang-format / .editorconfig  # Code style
 ├── docs/                          # Hardware + SimHub setup guides
@@ -104,4 +126,5 @@ Arduino Uno R3 in CI.
 ## Acknowledgements
 
 - [SimHub](https://www.simhubdash.com/) — telemetry and serial output
+- [Daniel Newman Racing](https://www.danielnewmanracing.com/) — the ambient LED profile
 - [FastLED](https://fastled.io) — the addressable LED library
