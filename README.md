@@ -33,8 +33,9 @@ WS2812B LED panels using [FastLED](https://fastled.io).
 ```
 
 Both panels show the **same** full gradient: SimHub's colour zones are spread
-across each panel's 256 pixels, and both data pins are clocked from one shared
-buffer, so the left and right panels mirror each other.
+across each panel's 256 pixels from one shared buffer. The panels are mounted as
+mirror images, so the buffer is reversed in place for one of them and both
+gradients flow the same way.
 
 ## Features
 
@@ -96,6 +97,7 @@ wiring:
 | `LEDS_PER_PANEL` | `256` | Pixels per panel (8 × 32) |
 | `LEFT_PANEL_PIN` | `6` | Data pin for one panel |
 | `RIGHT_PANEL_PIN` | `5` | Data pin for the other panel |
+| `REVERSE_LEFT_INSTEAD` | _(off)_ | Flip which panel gets reversed if the wrong one looks backwards |
 
 ### 3. Flash and wire up SimHub
 

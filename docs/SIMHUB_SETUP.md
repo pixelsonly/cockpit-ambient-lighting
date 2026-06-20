@@ -81,6 +81,7 @@ FF 00 00      zone 0 → left half of each panel  (red)
 | Nothing lights up | Wrong data pin, no common ground, or panels unpowered |
 | Whole panel is one colour | SimHub LED count is 1 — set it to 2+ for a gradient |
 | Only one panel lights up | That panel's data/power wiring — both share the same buffer |
+| One panel's gradient runs backwards | Mirror-mounted — toggle `REVERSE_LEFT_INSTEAD` in the sketch |
 | Garbled / random colours | Baud mismatch, or Adalight frame ≠ parser |
 | First LED wrong, rest OK | Missing series resistor / colour-order mismatch |
 | Flicker under load | Undersized PSU or missing smoothing capacitor |
