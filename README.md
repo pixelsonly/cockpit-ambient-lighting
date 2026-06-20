@@ -43,9 +43,11 @@ drives the **right** panel.
   the Daniel Newman Racing profile; no custom PC software required.
 - **Dual independent panels** — left and right WS2812B 8×32 panels are driven
   from separate data pins (`D6`, `D5`) as one continuous canvas, not mirrored.
-- **Any zone count** — SimHub can stream anywhere from 2 colour zones (the DNR
-  2-zone ambient profile) up to per-pixel; each zone is spread evenly across the
-  512-pixel canvas, so finer SimHub layouts "just work" with no firmware change.
+- **Configurable zone count** — SimHub can stream anywhere from 2 colour zones
+  (the DNR 2-zone ambient profile) up to 96; each zone is spread evenly across
+  the 512-pixel canvas, so finer SimHub layouts "just work" with no firmware
+  change. The whole frame is buffered before either panel is shown, so higher
+  counts render correctly on both panels.
 - **RAM-safe on the Uno** — a single 256-LED buffer is flushed once per panel,
   keeping well within the ATmega328P's 2 KB of SRAM.
 - **Power-on self-test** — a red/green/blue sweep at boot confirms both panels

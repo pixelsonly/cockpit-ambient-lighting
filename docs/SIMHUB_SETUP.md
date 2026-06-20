@@ -31,9 +31,10 @@ ambient LED profile, which outputs a left/right colour pair (2 zones).
 3. Set the **number of LEDs** to the number of colour zones you want:
    - **2** — the DNR 2-zone ambient: zone 0 → entire **left** panel, zone 1 →
      entire **right** panel. This is the tested default.
-   - **Higher** (e.g. 8, 16, 32, …) — a finer gradient. The firmware spreads the
-     zones evenly across the 512-pixel canvas; the first half lights the left
-     panel, the second half the right. No firmware change is needed.
+   - **Higher** (e.g. 8, 16, 32, up to 96) — a finer gradient. The firmware
+     spreads the zones evenly across the 512-pixel canvas; the first half lights
+     the left panel, the second half the right. No firmware change is needed.
+     (96 is the `MAX_ZONES` cap that keeps the Uno's SRAM safe.)
 
 > ⚠️ **The firmware reinterprets the Adalight "LED count" as a zone count** and
 > stretches each zone across `512 / count` physical LEDs. So you set SimHub to a
