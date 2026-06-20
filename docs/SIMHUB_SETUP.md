@@ -28,17 +28,17 @@ ambient LED profile, which outputs a left/right colour pair (2 zones).
 1. Open SimHub → **RGB LEDs / Devices** and add an **Adalight** device (the DNR
    ambient profile sets this up for you).
 2. Select the Arduino's COM port and set the baud rate to **115200**.
-3. Set the **number of LEDs** to the number of colour zones you want:
-   - **2** — the DNR 2-zone ambient: zone 0 → entire **left** panel, zone 1 →
-     entire **right** panel. This is the tested default.
-   - **Higher** (e.g. 8, 16, 32, up to 96) — a finer gradient. The firmware
-     spreads the zones evenly across the 512-pixel canvas; the first half lights
-     the left panel, the second half the right. No firmware change is needed.
-     (96 is the `MAX_ZONES` cap that keeps the Uno's SRAM safe.)
+3. Set the **number of LEDs** to the number of colour zones you want. Both
+   panels show the same gradient; each zone is spread across every panel's 256
+   pixels:
+   - **2** — the DNR 2-zone ambient: each panel shows a left-half colour and a
+     right-half colour. This is the tested default.
+   - **Higher** (e.g. 8, 16, 32, up to 256) — a finer gradient across each
+     panel. No firmware change is needed.
 
 > ⚠️ **The firmware reinterprets the Adalight "LED count" as a zone count** and
-> stretches each zone across `512 / count` physical LEDs. So you set SimHub to a
-> handful of zones, *not* to 512, unless you genuinely want per-pixel control.
+> stretches each zone across `256 / count` pixels per panel. So you set SimHub to
+> the number of gradient steps you want (2–256), not necessarily 256.
 
 ## 3. Adalight frame format
 
@@ -59,8 +59,8 @@ Example frame for the 2-zone ambient (zone 0 = red, zone 1 = blue):
 41 64 61      "Ada"
 00 02         count = 2
 57            checksum = (0x00 ^ 0x02) ^ 0x55
-FF 00 00      zone 0 → left panel  (red)
-00 00 FF      zone 1 → right panel (blue)
+FF 00 00      zone 0 → left half of each panel  (red)
+00 00 FF      zone 1 → right half of each panel (blue)
 ```
 
 ## 4. Verify
@@ -79,8 +79,8 @@ FF 00 00      zone 0 → left panel  (red)
 | Symptom | Likely cause |
 | ------- | ------------ |
 | Nothing lights up | Wrong data pin, no common ground, or panels unpowered |
-| Both panels show the same content | SimHub LED count is 1 (single zone) — set it to 2+ |
-| Left/right panels swapped | Uncomment `SWAP_PANELS` in the sketch (or swap D5/D6) |
+| Whole panel is one colour | SimHub LED count is 1 — set it to 2+ for a gradient |
+| Only one panel lights up | That panel's data/power wiring — both share the same buffer |
 | Garbled / random colours | Baud mismatch, or Adalight frame ≠ parser |
 | First LED wrong, rest OK | Missing series resistor / colour-order mismatch |
 | Flicker under load | Undersized PSU or missing smoothing capacitor |

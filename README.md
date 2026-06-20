@@ -32,24 +32,24 @@ WS2812B LED panels using [FastLED](https://fastled.io).
                                                                           └──────────────┘
 ```
 
-The two 8×32 panels are treated as one continuous left/right canvas: the first
-half of the SimHub colour stream drives the **left** panel and the second half
-drives the **right** panel.
+Both panels show the **same** full gradient: SimHub's colour zones are spread
+across each panel's 256 pixels, and both data pins are clocked from one shared
+buffer, so the left and right panels mirror each other.
 
 ## Features
 
 - **Adalight receiver** — speaks SimHub's standard Adalight serial protocol, so
   all of the effect logic (RPM, flags, ambient colour, etc.) lives in SimHub /
   the Daniel Newman Racing profile; no custom PC software required.
-- **Dual independent panels** — left and right WS2812B 8×32 panels are driven
-  from separate data pins (`D6`, `D5`) as one continuous canvas, not mirrored.
+- **Dual mirrored panels** — both WS2812B 8×32 panels are driven from separate
+  data pins (`D6`, `D5`) but show identical content from one shared buffer.
 - **Configurable zone count** — SimHub can stream anywhere from 2 colour zones
-  (the DNR 2-zone ambient profile) up to 96; each zone is spread evenly across
-  the 512-pixel canvas, so finer SimHub layouts "just work" with no firmware
-  change. The whole frame is buffered before either panel is shown, so higher
-  counts render correctly on both panels.
-- **RAM-safe on the Uno** — a single 256-LED buffer is flushed once per panel,
-  keeping well within the ATmega328P's 2 KB of SRAM.
+  (the DNR 2-zone ambient profile) up to 256; each zone is spread evenly across
+  every panel's 256 pixels, so finer SimHub layouts "just work" with no firmware
+  change. The whole frame is buffered before the panels are shown, so higher
+  counts render correctly.
+- **RAM-safe on the Uno** — both panels share a single 256-LED buffer, keeping
+  well within the ATmega328P's 2 KB of SRAM.
 - **Power-on self-test** — a red/green/blue sweep at boot confirms both panels
   are wired and addressed correctly.
 
@@ -94,9 +94,8 @@ wiring:
 | Constant | Default | Meaning |
 | --- | --- | --- |
 | `LEDS_PER_PANEL` | `256` | Pixels per panel (8 × 32) |
-| `LEFT_PANEL_PIN` | `6` | Data pin for the left panel |
-| `RIGHT_PANEL_PIN` | `5` | Data pin for the right panel |
-| `SWAP_PANELS` | _(off)_ | Uncomment if the panels come up left/right swapped |
+| `LEFT_PANEL_PIN` | `6` | Data pin for one panel |
+| `RIGHT_PANEL_PIN` | `5` | Data pin for the other panel |
 
 ### 3. Flash and wire up SimHub
 

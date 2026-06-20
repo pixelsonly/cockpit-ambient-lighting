@@ -16,8 +16,8 @@
 
 ## Wiring
 
-Each panel is driven from its own data pin. `D6` feeds the **left** panel and
-`D5` feeds the **right** panel (swap with `SWAP_PANELS` in the sketch if needed).
+Each panel is driven from its own data pin (`D6` and `D5`). Both panels show
+identical content, so it doesn't matter which physical panel is on which pin.
 
 ```
 Arduino Uno R3                         WS2812B panels
@@ -60,12 +60,13 @@ add it deliberately, not by default.
 
 ## Microcontroller headroom
 
-Driving 512 individually-addressable LEDs is near the Uno's limit. The firmware
-keeps a single 256-LED buffer (768 bytes) and flushes it once per panel, which
-leaves comfortable SRAM headroom (~58% used). A full 512-LED buffer would leave
-the ATmega328P's 2 KB of SRAM dangerously low and risk mid-session instability.
-If you later want a larger per-pixel canvas, move to a board with more SRAM
-(e.g. Arduino Mega 2560, Nano Every, or an ESP32) and update `sketch.yaml`.
+Because both panels mirror the same content, the firmware needs only a single
+256-LED buffer (768 bytes), which leaves comfortable SRAM headroom (~57% used).
+Driving the two panels as 512 *independently* addressable LEDs would need a
+1536-byte buffer — leaving the ATmega328P's 2 KB of SRAM dangerously low and
+risking mid-session instability. If you ever want independent per-panel content,
+move to a board with more SRAM (e.g. Arduino Mega 2560, Nano Every, or an ESP32)
+and update `sketch.yaml`.
 
 ## Photos / diagram
 

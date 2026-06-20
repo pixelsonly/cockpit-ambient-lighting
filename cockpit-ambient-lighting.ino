@@ -2,48 +2,29 @@
 
 // ─── Hardware ────────────────────────────────────────────────────────────────
 // Two BTF-LIGHTING WS2812B 8x32 panels (256 pixels each) on one Arduino Uno.
-// The panels are mounted separately (left & right of the cockpit) but treated as
-// a single continuous canvas: virtual pixels [0, 256) drive the LEFT panel and
-// [256, 512) drive the RIGHT panel. SimHub (Adalight) streams the colours.
-//
-// RAM note: the Uno has only 2 KB of SRAM. A full 512-LED buffer (1536 bytes)
-// leaves too little headroom and the compiler warns of instability, so we keep
-// ONE 256-LED buffer and render each panel into it in turn. The frame's zone
-// colours are buffered first (see loop()) so we never show a panel mid-frame.
-#define LEDS_PER_PANEL 256                // 8 x 32 per BTF-LIGHTING panel
-#define CANVAS_LEDS (LEDS_PER_PANEL * 2)  // 512 virtual pixels across both panels
-#define LEFT_PANEL_PIN 6                  // Data pin feeding the LEFT panel
-#define RIGHT_PANEL_PIN 5                 // Data pin feeding the RIGHT panel
+// Both panels show the SAME full gradient (mirrored): SimHub (Adalight) streams
+// `count` colour zones and each panel spreads all of them across its own 256
+// pixels. The two data pins are clocked from one shared 256-LED buffer.
+#define LEDS_PER_PANEL 256  // 8 x 32 per BTF-LIGHTING panel
+#define LEFT_PANEL_PIN 6    // Data pin feeding one panel
+#define RIGHT_PANEL_PIN 5   // Data pin feeding the other panel
 #define SERIAL_RATE 115200
-#define MAX_ZONES 96  // Most SimHub Adalight colour zones we can buffer (SRAM)
-
-// If the panels come up swapped (left content on the right panel), uncomment:
-// #define SWAP_PANELS
 
 // Adalight frame: 'A' 'd' 'a' + count_hi + count_lo + checksum + count*RGB.
-// SimHub sends `count` colour zones; each zone is spread evenly across the 512
-// virtual canvas. With SimHub's Adalight LED count = 2 (the DNR 2-zone ambient
-// profile) zone 0 fills the LEFT panel and zone 1 fills the RIGHT panel. Raise
-// SimHub's LED count (up to MAX_ZONES) for a finer gradient across both panels.
+// SimHub sends `count` colour zones; each zone is spread evenly across the 256
+// pixels of every panel. count = 2 (the DNR 2-zone ambient profile) gives a
+// left-half / right-half colour split; raise it for a finer gradient. Both
+// panels always show identical content.
 uint8_t prefix[] = {'A', 'd', 'a'};
 uint16_t hi, lo, chk;
 uint16_t groupCount;  // Number of zones provided by SimHub
 
-// One 256-LED buffer, rendered once per panel; zones[] holds the frame's colours
-// so the whole frame is read before either panel is shown (see RAM note above).
+// One shared buffer; FastLED.show() clocks it out to both data pins.
 CRGB leds[LEDS_PER_PANEL];
-CRGB zones[MAX_ZONES];
-CLEDController* leftPanel;
-CLEDController* rightPanel;
 
 void setup() {
-#ifdef SWAP_PANELS
-  leftPanel = &FastLED.addLeds<NEOPIXEL, RIGHT_PANEL_PIN>(leds, LEDS_PER_PANEL);
-  rightPanel = &FastLED.addLeds<NEOPIXEL, LEFT_PANEL_PIN>(leds, LEDS_PER_PANEL);
-#else
-  leftPanel = &FastLED.addLeds<NEOPIXEL, LEFT_PANEL_PIN>(leds, LEDS_PER_PANEL);
-  rightPanel = &FastLED.addLeds<NEOPIXEL, RIGHT_PANEL_PIN>(leds, LEDS_PER_PANEL);
-#endif
+  FastLED.addLeds<NEOPIXEL, LEFT_PANEL_PIN>(leds, LEDS_PER_PANEL);
+  FastLED.addLeds<NEOPIXEL, RIGHT_PANEL_PIN>(leds, LEDS_PER_PANEL);  // Mirrors the first.
 
   // Power-on test sweep — also confirms both panels are wired correctly.
   FastLED.showColor(CRGB(255, 0, 0));
@@ -86,15 +67,15 @@ void loop() {
   }
 
   groupCount = (hi << 8) | lo;
-  if (groupCount == 0) {
-    return;  // Guard against a divide-by-zero on a malformed header.
+  if (groupCount == 0 || groupCount > LEDS_PER_PANEL) {
+    return;  // Need 1..256 zones to map onto a 256-pixel panel.
   }
 
-  // Read the WHOLE frame into zones[] BEFORE touching the LEDs. Showing a panel
-  // mid-frame would disable interrupts for ~8 ms and drop the serial bytes for
-  // the zones still in flight — which is why counts above 2 only lit the left
-  // panel. Buffering first, then rendering, keeps both panels correct.
-  for (uint16_t z = 0; z < groupCount; z++) {
+  // Fill the buffer as the frame arrives, then show ONCE. We must not call
+  // show() mid-frame: it disables interrupts for ~8 ms per panel and the Uno
+  // would drop the serial bytes for the zones still in flight.
+  uint16_t ledsPerGroup = LEDS_PER_PANEL / groupCount;
+  for (uint16_t groupIndex = 0; groupIndex < groupCount; groupIndex++) {
     byte r, g, b;
     while (!Serial.available()) {
     }
@@ -105,36 +86,17 @@ void loop() {
     while (!Serial.available()) {
     }
     b = Serial.read();
-    if (z < MAX_ZONES) {
-      zones[z] = CRGB(r, g, b);
+    CRGB color = CRGB(r, g, b);
+
+    uint16_t startIndex = groupIndex * ledsPerGroup;
+    uint16_t endIndex = startIndex + ledsPerGroup;
+    if (groupIndex == groupCount - 1) {
+      endIndex = LEDS_PER_PANEL;  // Last zone absorbs any remainder — no stale pixels.
+    }
+    for (uint16_t i = startIndex; i < endIndex; i++) {
+      leds[i] = color;
     }
   }
 
-  // If SimHub streams more zones than we can buffer, skip this frame rather than
-  // render a truncated gradient. Raise MAX_ZONES (watch SRAM) if you need more.
-  if (groupCount > MAX_ZONES) {
-    return;
-  }
-
-  // Spread the zones across the 512-pixel virtual canvas and flush each panel.
-  // Both reads are done, so neither showLeds() can drop incoming serial data.
-  uint16_t ledsPerGroup = CANVAS_LEDS / groupCount;
-
-  for (uint16_t p = 0; p < LEDS_PER_PANEL; p++) {
-    uint16_t zone = p / ledsPerGroup;  // Left panel = virtual pixels [0, 256).
-    if (zone >= groupCount) {
-      zone = groupCount - 1;  // Trailing remainder → last zone.
-    }
-    leds[p] = zones[zone];
-  }
-  leftPanel->showLeds(255);
-
-  for (uint16_t p = 0; p < LEDS_PER_PANEL; p++) {
-    uint16_t zone = (LEDS_PER_PANEL + p) / ledsPerGroup;  // Right = [256, 512).
-    if (zone >= groupCount) {
-      zone = groupCount - 1;
-    }
-    leds[p] = zones[zone];
-  }
-  rightPanel->showLeds(255);
+  FastLED.show();  // Clock the identical buffer out to both panels.
 }
