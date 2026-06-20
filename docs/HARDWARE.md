@@ -16,14 +16,14 @@
 
 ## Wiring
 
-Each panel is driven from its own data pin. `D7` feeds the **left** panel and
-`D6` feeds the **right** panel (swap with `SWAP_PANELS` in the sketch if needed).
+Each panel is driven from its own data pin. `D6` feeds the **left** panel and
+`D5` feeds the **right** panel (swap with `SWAP_PANELS` in the sketch if needed).
 
 ```
 Arduino Uno R3                         WS2812B panels
 -------------                          --------------
-D7  ──[ 330 Ω ]──────────────────────▶ LEFT  panel DIN
-D6  ──[ 330 Ω ]──────────────────────▶ RIGHT panel DIN
+D6  ──[ 330 Ω ]──────────────────────▶ LEFT  panel DIN
+D5  ──[ 330 Ω ]──────────────────────▶ RIGHT panel DIN
 GND ─────────────────────────────────▶ both panel GNDs ── PSU GND (common)
 
          5V PSU (+) ─────────┬────────▶ LEFT  panel +5V
@@ -31,7 +31,7 @@ GND ─────────────────────────�
                        1000 µF per panel (+ to 5V, − to GND, near each panel)
 ```
 
-- **Data pins:** `LEFT_PANEL_PIN` (`D7`) and `RIGHT_PANEL_PIN` (`D6`) in the
+- **Data pins:** `LEFT_PANEL_PIN` (`D6`) and `RIGHT_PANEL_PIN` (`D5`) in the
   sketch. Any digital pins work — keep the data runs short.
 - **Common ground:** the Arduino GND, both panel GNDs, and the PSU GND must all
   be tied together.

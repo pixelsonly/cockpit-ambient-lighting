@@ -79,7 +79,7 @@ FF 00 00      zone 0 → left panel  (red)
 | ------- | ------------ |
 | Nothing lights up | Wrong data pin, no common ground, or panels unpowered |
 | Both panels show the same content | SimHub LED count is 1 (single zone) — set it to 2+ |
-| Left/right panels swapped | Uncomment `SWAP_PANELS` in the sketch (or swap D6/D7) |
+| Left/right panels swapped | Uncomment `SWAP_PANELS` in the sketch (or swap D5/D6) |
 | Garbled / random colours | Baud mismatch, or Adalight frame ≠ parser |
 | First LED wrong, rest OK | Missing series resistor / colour-order mismatch |
 | Flicker under load | Undersized PSU or missing smoothing capacitor |

@@ -26,9 +26,9 @@ WS2812B LED panels using [FastLED](https://fastled.io).
 ```
 ┌──────────┐  telemetry  ┌─────────┐  USB serial  ┌──────────────┐  data  ┌──────────────┐
 │   Game   │ ──────────▶ │ SimHub  │ ───────────▶ │ Arduino Uno  │ ─────▶ │ LEFT  panel  │
-│ (sim)    │             │  + DNR  │  Adalight    │ R3 + FastLED │  D7    │ (WS2812B 8×32)│
+│ (sim)    │             │  + DNR  │  Adalight    │ R3 + FastLED │  D6    │ (WS2812B 8×32)│
 └──────────┘             │ profile │  115200 baud │              │ ─────▶ │ RIGHT panel  │
-                         └─────────┘              └──────────────┘  D6    │ (WS2812B 8×32)│
+                         └─────────┘              └──────────────┘  D5    │ (WS2812B 8×32)│
                                                                           └──────────────┘
 ```
 
@@ -42,7 +42,7 @@ drives the **right** panel.
   all of the effect logic (RPM, flags, ambient colour, etc.) lives in SimHub /
   the Daniel Newman Racing profile; no custom PC software required.
 - **Dual independent panels** — left and right WS2812B 8×32 panels are driven
-  from separate data pins (`D7`, `D6`) as one continuous canvas, not mirrored.
+  from separate data pins (`D6`, `D5`) as one continuous canvas, not mirrored.
 - **Any zone count** — SimHub can stream anywhere from 2 colour zones (the DNR
   2-zone ambient profile) up to per-pixel; each zone is spread evenly across the
   512-pixel canvas, so finer SimHub layouts "just work" with no firmware change.
@@ -92,8 +92,8 @@ wiring:
 | Constant | Default | Meaning |
 | --- | --- | --- |
 | `LEDS_PER_PANEL` | `256` | Pixels per panel (8 × 32) |
-| `LEFT_PANEL_PIN` | `7` | Data pin for the left panel |
-| `RIGHT_PANEL_PIN` | `6` | Data pin for the right panel |
+| `LEFT_PANEL_PIN` | `6` | Data pin for the left panel |
+| `RIGHT_PANEL_PIN` | `5` | Data pin for the right panel |
 | `SWAP_PANELS` | _(off)_ | Uncomment if the panels come up left/right swapped |
 
 ### 3. Flash and wire up SimHub
